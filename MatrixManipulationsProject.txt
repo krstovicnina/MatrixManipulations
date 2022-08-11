@@ -1,0 +1,357 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int PrintMenu()
+{
+	int option;
+	printf("\n\n");
+	printf("To get the sum of two matrices.....................................enter 1 \n");
+	printf("To get the difference between two matrices.........................enter 2 \n");
+	printf("To get a scalar product of a matrix................................enter 3 \n");
+	printf("To get the product of two matrices.................................enter 4 \n");
+	printf("To get a transposed matrix.........................................enter 5 \n");
+	printf("To print a matrix in zig-zag form..................................enter 6 \n");
+	printf("To print all entries which have an even sum of its neighbours......enter 7 \n");
+	printf("To exit the program................................................enter 8 \n\n");
+	scanf("%d", &option);
+	return option; //We need the return option so that the switch can be activated in the main function.
+}
+
+void Free(int **Matrix, int Rows) //Free the dynamically allocated memory we used for the matrices.
+{ 
+	int i;
+	for (i = 0; i < Rows; i++)
+	{
+		free(Matrix[i]);
+	}
+	free(Matrix);
+}
+void EnterDimensions(int *Rows, int *Columns) //They have to be pointers or only copies of rows and columns will be used and any changes removed.
+{
+	int IncorrectDimentions = 0;
+	do
+	{
+		if (IncorrectDimentions)
+		{
+			printf("\nNumber of rows and/or columns cannot be zero/negative. Please enter correct dimensions.\n\n");
+		}
+		printf("Enter the number of rows:\n");
+		scanf("%d", Rows);
+		printf("Enter the number of columns:\n");
+		scanf("%d", Columns);
+		IncorrectDimentions = 1;
+	} while (*Rows < 1 || *Columns < 1);
+}
+int ** EnterElements(int **Matrix, int Rows, int Columns)
+{
+	int i, j;
+	Matrix = malloc(Rows * sizeof(int*));  //Memory allocation for rows.
+	for (i = 0; i < Rows; i++)
+	{
+		Matrix[i] = malloc(Columns * sizeof(int)); //Memory allocation for columns of those rows.
+		printf("Row %d\n", i + 1);
+		for (j = 0; j < Columns; j++)
+		{
+			scanf("%d", &Matrix[i][j]);
+		}
+	}
+	return Matrix; // Has a return value so that the value is stored for the matrix.
+}
+void PrintMatrix(int **Matrix, int Rows, int Columns)
+{ 
+	int i, j;
+	for (i = 0; i < Rows; i++) // Goes through all the rows and columns.
+	{
+		for (j = 0; j < Columns; j++)
+		{
+			printf(" %d", Matrix[i][j]);
+		}
+		printf("\n");
+	}
+}
+void Sum(int **MatrixA, int **MatrixB, int **MatrixC)
+{ 
+	int Rows, Columns;
+	printf("\nPlease enter the dimensions of your matrices.\n");
+	EnterDimensions(&Rows, &Columns); //calling the function 
+	printf("Please enter the elements of the first matrix.\n");
+	MatrixA = EnterElements(MatrixA, Rows, Columns);
+	printf("Please enter the elements of the second matrix.\n");
+	MatrixB = EnterElements(MatrixB, Rows, Columns);
+	int i, j;
+	MatrixC = malloc(Rows * sizeof(int*)); 
+	for (i = 0; i < Rows; i++)
+	{
+		MatrixC[i] = malloc(Columns * sizeof(int)); 
+		for (j = 0; j < Columns; j++)
+		{
+			MatrixC[i][j] = MatrixA[i][j] + MatrixB[i][j];
+		}
+	}
+	printf("\nThe first matrix that you entered:\n\n");
+	PrintMatrix(MatrixA, Rows, Columns);
+	printf("\nThe second matrix that you entered:\n\n");
+	PrintMatrix(MatrixB, Rows, Columns);
+	Free(MatrixA, Rows);
+	Free(MatrixB, Rows);
+	printf("\nThe sum of these two matrices:\n\n");
+	PrintMatrix(MatrixC, Rows, Columns);
+	Free(MatrixC, Rows);
+}
+void Deduction(int **MatrixA, int **MatrixB, int **MatrixC)
+{
+	int Rows, Columns;
+	printf("\nPlease enter the dimensions of your matrices.\n");
+	EnterDimensions(&Rows, &Columns);
+	printf("Please enter the elements of the first matrix.\n");
+	MatrixA = EnterElements(MatrixA, Rows, Columns);
+	printf("Please enter the elements of the second matrix.\n");
+	MatrixB = EnterElements(MatrixB, Rows, Columns);
+	int i, j;
+	MatrixC = malloc(Rows * sizeof(int*));
+	for (i = 0; i < Rows; i++)
+	{
+		MatrixC[i] = malloc(Columns * sizeof(int));
+		for (j = 0; j < Columns; j++)
+		{
+			MatrixC[i][j] = MatrixA[i][j] - MatrixB[i][j];
+		}
+	}
+	printf("\nThe first matrix that you entered:\n\n");
+	PrintMatrix(MatrixA, Rows, Columns);
+	printf("\nThe second matrix that you entered:\n\n");
+	PrintMatrix(MatrixB, Rows, Columns);
+	Free(MatrixA, Rows);
+	Free(MatrixB, Rows);
+	printf("\nThe difference between these two matrices:\n");
+	PrintMatrix(MatrixC, Rows, Columns);
+	Free(MatrixC, Rows);
+}
+void ScalarMultiplication(int **MatrixA, int **MatrixC) // Multipying with an integer
+{
+	int Rows, Columns, k; 
+	printf("\nPlease enter the dimensions of your matrix.\n");
+	EnterDimensions(&Rows, &Columns);
+	printf("Please enter the elements of your matrix.\n");
+	MatrixA = EnterElements(MatrixA, Rows, Columns);
+	printf("Please enter an integer with which you would like to multiply your matrix.\n");
+	scanf("%d", &k);
+	int i, j;
+	MatrixC = malloc(Rows * sizeof(int*));
+	for (i = 0; i < Rows; i++)
+	{
+		MatrixC[i] = malloc(Columns * sizeof(int));
+		for (j = 0; j < Columns; j++)
+		{
+			MatrixC[i][j] = k * MatrixA[i][j]; 
+		}
+	}
+	printf("\nThe matrix that you entered:\n\n");
+	PrintMatrix(MatrixA, Rows, Columns);
+	Free(MatrixA, Rows);
+	printf("\nThe result of the scalar multiplication of this matrix with number %d:\n\n", k);
+	PrintMatrix(MatrixC, Rows, Columns);
+	Free(MatrixC, Rows);
+}
+void Multiplication(int **MatrixA, int **MatrixB, int **MatrixC)
+{
+	int RowsA, ColumnsA, RowsB, ColumnsB, sum = 0;
+	printf("\nPlease enter dimensions of the first matrix.\n");
+	EnterDimensions(&RowsA, &ColumnsA);
+	printf("Please enter dimensions of the second matrix.\n");
+	do
+	{
+		printf("\n**In order to multiply the matrices the number of rows in the second matrix needs to equal the number of columns in the first matrix!**\n\n");
+		EnterDimensions(&RowsB, &ColumnsB);
+	} while (RowsB != ColumnsA);//multiplication cannot occur if this is true (the do while loop makes sure that it also displays this message in the first run of the program)
+	printf("Please enter elements of the first matrix.\n");
+	MatrixA = EnterElements(MatrixA, RowsA, ColumnsA);
+	printf("Please enter elements of the second matrix.\n");
+	MatrixB = EnterElements(MatrixB, RowsB, ColumnsB);
+	int i, j, k;
+	MatrixC = malloc(RowsA * sizeof(int*));
+	for (i = 0; i < RowsA; i++)
+	{
+		MatrixC[i] = malloc(ColumnsB * sizeof(int*));
+		for (j = 0; j < ColumnsB; j++)
+		{
+			for (k = 0; k < RowsB; k++)
+			{//MatrixC[i][j] will have the value of the sum of multiplication of all elements of row i times columns j.
+				sum += MatrixA[i][k] * MatrixB[k][j];
+			}
+			MatrixC[i][j] = sum;
+			sum = 0;
+		}
+	}
+	printf("\nThe first matrix that you entered:\n\n");
+	PrintMatrix(MatrixA, RowsA,ColumnsA);
+	printf("\nThe second matrix that you entered:\n\n");
+	PrintMatrix(MatrixB, RowsB, ColumnsB);
+	Free(MatrixA, RowsA);
+	Free(MatrixB, RowsB);
+	printf("\nThe product of these two matrices:\n\n");
+	PrintMatrix(MatrixC, RowsA, ColumnsB);
+	Free(MatrixC, RowsA);
+}
+void Transposition(int **MatrixA, int **MatrixC)
+{
+	int Rows, Columns;
+	printf("\nPlease enter dimensions of the matrix.\n");
+	EnterDimensions(&Rows, &Columns);
+	printf("Please enter elements of the matrix\n");
+	MatrixA = EnterElements(MatrixA, Rows, Columns);
+	int i, j;
+	MatrixC = malloc(Columns * sizeof(int*));//If A has dimensions [Rows, Columns], C will have [Columns, Rows]. 
+	for (i = 0; i < Columns; i++)
+	{
+		MatrixC[i] = malloc(Rows * sizeof(int));//First allocate memory for C, then transpose values from A to C.
+	}
+	for (i = 0; i < Rows; i++)
+	{
+		for (j = 0; j < Columns; j++)
+		{
+			MatrixC[j][i] = MatrixA[i][j];
+		}
+	}
+	printf("\nThe matrix that you entered:\n\n");
+	PrintMatrix(MatrixA, Rows, Columns);
+	Free(MatrixA, Rows);
+	printf("\nThe transposition of this matrix:\n\n");
+	PrintMatrix(MatrixC, Columns, Rows);
+	Free(MatrixC, Columns);
+}
+void ZigZagPrintOut(int **Matrix)
+{
+	int Rows, Columns;
+	printf("\nPlease enter dimensions of the matrix.\n");
+	EnterDimensions(&Rows, &Columns);
+	printf("Please enter the elements of the matrix.\n");
+	Matrix = EnterElements(Matrix, Rows, Columns);
+	printf("\nThe matrix that you entered:\n\n");
+	PrintMatrix(Matrix, Rows, Columns);
+
+	printf("\nThe zigzag representation of this matrix:\n\n");
+	int i, j;
+	for (i = 0; i < Rows; i++)
+	{
+		if (!(i % 2))
+		{//Every even row prints left to right. Every odd row prints right to left.
+			for (j = 0; j < Columns; j++)
+			{
+				printf(" %d ", Matrix[i][j]);
+			}
+			
+		}
+		else
+		{
+			for (j = Columns - 1; j >= 0; j--)
+			{
+				printf(" %d ", Matrix[i][j]);
+			}
+			
+		}
+	}
+	Free(Matrix, Rows);
+}
+void CheckOnes(int Number, int *NumOfOnes) {
+	
+	int mask = 1 << sizeof(int) * 8 - 1;
+	int counter = *NumOfOnes;
+	while (Number != 0)
+	{
+		if (Number & mask)
+			counter++;
+		Number <<= 1; //Since integer can be a negative number we move everything to the left
+	}
+	*NumOfOnes = counter;
+}
+void CheckNeighbours(int **Matrix)
+{
+	int Rows, Columns;
+	printf("\nPlease enter dimensions of the matrix.\n");
+	EnterDimensions(&Rows, &Columns);
+	printf("Please enter elements of the matrix.\n");
+	Matrix = EnterElements(Matrix, Rows, Columns);
+	printf("\nThe first matrix that you entered:\n\n");
+	PrintMatrix(Matrix, Rows, Columns);
+
+	int i, j, m, n, NumOfOnes = 0;
+	printf("\nThe following numbers have an even sum of ones in the binary representation of neighbouring elements:\n\n");
+	for (m = 0; m < Rows; m++)
+	{
+		for (n = 0; n < Columns; n++)
+		{
+			for (i = m - 1; i <= m + 1; i++)
+			{
+				if (i < 0 || i >= Rows)//If out of bounds, skip CheckOnes.
+				{
+					continue;
+				}
+				for (j = n - 1; j <= n + 1; j++)
+				{
+					if (j < 0 || j >= Columns)//If out of bounds, skip CheckOnes.
+					{
+						continue;
+					}
+					if (i == m && j == n)//If the number is the one we are checking, skip CheckOnes.
+					{
+						continue;
+					}
+					CheckOnes(Matrix[i][j], &NumOfOnes);//If the neighbour exists
+				}
+			}
+			
+			if (!(NumOfOnes % 2))//If sum is even, print number and its location. 
+			{
+				printf("%d in row %d and column %d\n", Matrix[m][n], m + 1, n + 1); //Computer counts from 0, not 1. Thereforre, m + 1 and n + 1.
+			}
+			
+			NumOfOnes = 0;
+			
+		}
+		
+	}
+	
+	Free(Matrix, Rows);
+}
+int main()
+{
+	printf("\n***!Welcome User!***\n");
+	int **MatrixA = NULL, **MatrixB = NULL, **MatrixC = NULL, k; //Matrices need to be initialized to zero (null) value because of the random values that were stored in that location previously
+	
+		while (1)
+		{
+
+			switch (PrintMenu())
+			{
+			case 1:
+				Sum(MatrixA, MatrixB, MatrixC);
+				break;
+			case 2:
+				Deduction(MatrixA, MatrixB, MatrixC);
+				break;
+			case 3:
+				ScalarMultiplication(MatrixA, MatrixC);
+				break;
+			case 4:
+				Multiplication(MatrixA, MatrixB, MatrixC);
+				break;
+			case 5:
+				Transposition(MatrixA, MatrixC);
+				break;
+			case 6:
+				ZigZagPrintOut(MatrixA);
+				break;
+			case 7:
+				CheckNeighbours(MatrixA);
+				break;
+			case 8:
+				return 0;
+				break;
+			default:
+				printf("\nYou have entered an invalid option. Please try again.\n");
+				break;
+			}
+		}
+}
